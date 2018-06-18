@@ -5,19 +5,22 @@
 #define RST_PIN  5   //Pin 5 para el reset del RC522
 #define SS_PIN   4   //Pin 4 para el SS (SDA) del RC522
 MFRC522 mfrc522(SS_PIN, RST_PIN); //Creamos el objeto para el RC522
+
 //Configuración de red
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; //MAC
 byte ip[] = { 192, 168, 1, 180 }; // IP del servidor
 byte gateway[] = { 192, 168, 1, 1 }; // puerta de enlace predeterminada
 byte subnet[] = { 255, 255, 255, 0 }; //mascara de subred
 EthernetServer server(80); //puerto del servidor
-//variables
+
+//variables globales
 String readString;
 String card = "";
 int ledPin = 2;
 bool haypeticion = false;
 String estadoLuces = "";
 String tarjetasConPermiso = "";
+
 //configuración inicial
 void setup() {
   pinMode(ledPin, OUTPUT); //pin selected to control
@@ -29,6 +32,7 @@ void setup() {
   Ethernet.begin(mac, ip, gateway, subnet);
   server.begin();
 }
+
 //Bucle principal
 void loop() {
   //Servidor web (para las luces)
@@ -68,6 +72,11 @@ void loop() {
             client.println(estadoLuces);
             haypeticion = true;
           }
+          if (readString.indexOf("?setpermitidos") > -1) //setea el valor de las tarjetas permitidas para este modulo
+          {
+            //TODO
+            haypeticion = true;
+          }
           if (!haypeticion) { // si no viene niguna de la anteriores solo mostramos un mensaje
             client.println("Bienvenido");
           }
@@ -99,6 +108,14 @@ void loop() {
       Serial.println();
       // Terminamos la lectura de la tarjeta  actual
       mfrc522.PICC_HaltA();
+      //pendiente guardar registro de tarjeta a BD
+      //      EthernetClient guardador;
+      //      if (client.connect(server, 80)) {
+      //        guardador.println("GET /search?q=arduino HTTP/1.0");
+      //        guardador.println();
+      //      } else {
+      //        Serial.println("connection failed");
+      //      }
     }
   }
   //Fin RFID

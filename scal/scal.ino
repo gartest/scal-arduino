@@ -12,6 +12,7 @@ byte ip[] = { 192, 168, 1, 180 }; // IP del servidor
 byte gateway[] = { 192, 168, 1, 1 }; // puerta de enlace predeterminada
 byte subnet[] = { 255, 255, 255, 0 }; //mascara de subred
 EthernetServer server(80); //puerto del servidor
+EthernetClient client;
 
 //variables globales
 String readString;
@@ -37,7 +38,7 @@ void setup() {
 void loop() {
   //Servidor web (para las luces)
   // Creamos la conexión
-  EthernetClient client = server.available();
+  client = server.available();
   if (client) {
     while (client.connected()) {
       if (client.available()) {
@@ -108,14 +109,6 @@ void loop() {
       Serial.println();
       // Terminamos la lectura de la tarjeta  actual
       mfrc522.PICC_HaltA();
-      //pendiente guardar registro de tarjeta a BD
-      //      EthernetClient guardador;
-      //      if (client.connect(server, 80)) {
-      //        guardador.println("GET /search?q=arduino HTTP/1.0");
-      //        guardador.println();
-      //      } else {
-      //        Serial.println("connection failed");
-      //      }
     }
   }
   //Fin RFID

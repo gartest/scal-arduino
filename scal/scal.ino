@@ -9,7 +9,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); //Creamos el objeto para el RC522
 //Configuración de red
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; //MAC
 byte ip[] = { 192, 168, 1, 180 }; // IP del servidor
-byte gateway[] = { 192, 168, 1, 1 }; // puerta de enlace predeterminada
+byte gateway[] = { 192, 168, 1, 11 }; // puerta de enlace predeterminada
 byte subnet[] = { 255, 255, 255, 0 }; //mascara de subred
 EthernetServer server(80); //puerto del servidor
 EthernetClient client;
@@ -17,7 +17,8 @@ EthernetClient client;
 //variables globales
 String readString;
 String card = "";
-int ledPin = 2;
+int ledPin = 3;
+int doorPin = 2;
 bool haypeticion = false;
 String estadoLuces = "";
 String tarjetasConPermiso = "";
@@ -25,6 +26,7 @@ String tarjetasConPermiso = "";
 //configuración inicial
 void setup() {
   pinMode(ledPin, OUTPUT); //pin selected to control
+  pinMode(doorPin, OUTPUT); //pin selected to control
   Serial.begin(9600); //Iniciamos la comunicación  serial
   SPI.begin();        //Iniciamos el Bus SPI
   mfrc522.PCD_Init(); // Iniciamos  el MFRC522
@@ -109,6 +111,9 @@ void loop() {
       Serial.println();
       // Terminamos la lectura de la tarjeta  actual
       mfrc522.PICC_HaltA();
+      digitalWrite(doorPin, HIGH); // encendemos luces
+      delay(1000);
+      digitalWrite(doorPin, LOW); // encendemos luces
     }
   }
   //Fin RFID

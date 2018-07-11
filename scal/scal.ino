@@ -8,10 +8,9 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); //Creamos el objeto para el RC522
 
 //Configuración de red
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; //MAC
-byte ip[] = { 192, 168, 1, 180 }; // IP del servidor
+byte ip[] = { 192, 168, 0, 180 }; // IP de este arduino, cambiar para cada arduino conectado
 EthernetServer server(80); //puerto del servidor
 EthernetClient client; //para el server web de las luces
-EthernetClient client2; //para guardar los datos de tarjeta a DB
 
 //variables globales
 String readString; // string donde se guarda la petición web (ej prender luces)
@@ -40,9 +39,9 @@ void setup() {
 void loop() {
   //guardamos datos de tarjeta a DB 
   if (card != "") {
-    if (client.connect("192.168.1.136", 80)) {//IP del PC donde está la página
+    if (client.connect("192.168.0.100", 80)) {//IP del PC donde está la página (ipconfig) 
       Serial.println("guardando log tarjeta");
-      client.print("GET /api/guardaridtarjeta/192.168.1.180/");//IP de este arduino
+      client.print("GET /api/guardaridtarjeta/192.168.0.180/");//IP de este arduino
       client.print(card + (accesoCorrecto ? "/Acceso%20Correcto" : "/Acceso%20Denegado"));
       client.println(" HTTP/1.1");
       client.println("Host: scal.cl");
@@ -133,9 +132,13 @@ void loop() {
         card.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : ""));
         card.concat(String(mfrc522.uid.uidByte[i], HEX));
       }
-      Serial.print(card);
+      Serial.println(card);
       if(tarjetasConPermiso.indexOf(card) > -1){
         accesoCorrecto = true;
+        Serial.println("Acceso Correcto");
+      }
+      else{
+        Serial.println("Acceso Denegado");
       }
       Serial.println();
       // Terminamos la lectura de la tarjeta  actual
@@ -145,7 +148,7 @@ void loop() {
   //Fin RFID
   if (accesoCorrecto) {
     digitalWrite(doorPin, HIGH); // abrimos puerta
-    delay(1500);
+    delay(1000);
     digitalWrite(doorPin, LOW);    
   }
 }
